@@ -2,14 +2,51 @@
 
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 8000
+
+//ejs
+app.set('view engine', 'ejs');// sets view engin to ejs
 
 
+//ROUTES//
+//home
+//Voor ieder verschillende pagina maak je er een aan. Je kan het zien als een template. Je maakt een soort opmaak en hoeft alleen de content er dan van te veranderen.
 app.get('/', (req, res) => { //Arrow function staat hier meteen al achter, als iemand een get request stuurt dan moet er hello world verstuurd worden.
-  res.send('<h1>Olaaa<h1>')//res.send('<h1>Hello world<h1>')
+  // res.send('Hello!')//res.send('<h1>hello world!<h1>')
+
+  var mascots = [
+    { name: 'Sammy', organization: "DigitalOcean", birth_year: 2012},
+    { name: 'Tux', organization: "Linux", birth_year: 1996},
+    { name: 'Moby Dock', organization: "Docker", birth_year: 2013}
+  ];
+  var tagline = "No programming concept is complete without a cute animal mascot.";
+
+  res.render('pages/index', {
+    mascots: mascots,
+    tagline: tagline
+  }); //renderen pagina's van ejs
 })
 
+//About 
+app.get('/about', (req, res) => { 
+  // res.send('<h1>about</h1>')
+  res.render('pages/about');
+})
+
+//Profiel
+app.get('/profile/:username', (req, res) => { 
+  const username = req.params.username
+  res.send('<h1>Hallo</h1>' + username);
+})
+
+//Not found
+app.use((req, res) => { 
+  res.status(404).send('<h1>404 not found</h1>');
+})  
+
+//Static
+app.use('/static',express.static('static'));
 
 app.listen(port, () => { //Arrow function als hij aan het luisteren is dan console.logt hij wat hieronder staat.
   console.log(`Example app listening on port ${port}`)
-})
+});
