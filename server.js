@@ -14,14 +14,14 @@ app.set('view engine', 'ejs');// sets view engin to ejs
 app.get('/', (req, res) => { //Arrow function staat hier meteen al achter, als iemand een get request stuurt dan moet er hello world verstuurd worden.
   // res.send('Hello!')//res.send('<h1>hello world!<h1>')
 
-  var mascots = [
+  var mascots = [ // variabele met elementen die uiteindelijk tevoorschijn komen
     { name: 'Sammy', organization: "DigitalOcean", birth_year: 2012},
     { name: 'Tux', organization: "Linux", birth_year: 1996},
     { name: 'Moby Dock', organization: "Docker", birth_year: 2013}
   ];
   var tagline = "No programming concept is complete without a cute animal mascot.";
 
-  res.render('pages/index', {
+  res.render('pages/index', { //word de pagina mee opgehaald
     mascots: mascots,
     tagline: tagline
   }); //renderen pagina's van ejs
@@ -36,7 +36,7 @@ app.get('/about', (req, res) => {
 //Profiel
 app.get('/profile/:username', (req, res) => { 
   const username = req.params.username
-  res.send('<h1>Hallo</h1>' + username);
+  res.send('<h1>Hallo</h1>' + username); //Je kan dan je eigen naam achter de / zetten en dan vershcijnt jouw naam in het scherm
 })
 
 //Not found
