@@ -15,18 +15,32 @@
     <p>Welcome to templating using EJS</p>
 
     <h2>Variable</h2>
-    <p><%= tagline %></p>
-
+    <p><%= tagline %></p> 
+    <!-- De string noem je tagline -->
 
     <ul>
-        <% mascots.forEach(function(mascot) { %>
-          <li>
-            <strong><%= mascot.name %></strong>
-            representing <%= mascot.organization %>,
-            born <%= mascot.birth_year %>
-          </li>
-        <% }); %>
-      </ul>
+      <% mascots.forEach(function(mascot) { %>
+        <!-- De array noem je mascots, en gebruik je foreach om door alle elementen te itereren -->
+        <li>
+          <strong><%= mascot.name %></strong> representing <%= mascot.organization %>,
+          born <%= mascot.birth_year %>
+
+          <!-- Deze code hieronder die kijkt naar de geoortedatums of ze wel of niet valid zijn en geven dit
+           terug als p -->
+          <% if (mascot.birth_year < 2013) { %> 
+            <p>Valid!!!</p>
+          <% } else { %>
+            <p>Not Allowed</p>
+          <% } %>
+        </li>
+      <% }); %>
+    </ul>
+
+    <!-- Zorgt ervoor dat alle nummers 1-10 tevoorschijn komen doordat de for loop state is erbij gezet. -->
+    <!-- <% for (var i =1; i <=10;  i++ ) { %>
+      <br/>  <%= i %> 
+      <%#  will output the numbers 1-10 %>
+      <% } %> -->
   </div>
 </main>
 

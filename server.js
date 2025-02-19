@@ -6,7 +6,7 @@ const port = 8000
 
 //ejs
 app.set('view engine', 'ejs');// sets view engin to ejs
-
+app.set('vieuws', 'view')
 
 //ROUTES//
 //home
@@ -26,6 +26,21 @@ app.get('/', (req, res) => { //Arrow function staat hier meteen al achter, als i
     tagline: tagline
   }); //renderen pagina's van ejs
 })
+
+//inloggen
+app.use(express.urlencoded({extended:true}))
+
+app.post('/add',(req, res) => { 
+  res.send(`thanks for logging in with:
+    name: ${req.body.name}
+    e-mail: ${req.body.email}`);
+})
+
+app.get('/add', (req, res) => { //show de 
+  res.render('add.ejs');
+})
+
+
 
 //About 
 app.get('/about', (req, res) => { 
