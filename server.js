@@ -36,7 +36,7 @@ app.post('/add',(req, res) => {
     e-mail: ${req.body.email}`);
 })
 
-app.get('/add', (req, res) => { //show de 
+app.get('/', (req, res) => { //show de 
   res.render('add.ejs');
 })
 
