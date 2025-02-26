@@ -8,6 +8,14 @@ const port = 8000
 app.set('view engine', 'ejs');// sets view engin to ejs
 app.set('vieuws', 'view')
 
+
+//mongodb
+require("dotenv").config();
+const { MongoClient } = require('mongodb')  
+
+const uri = process.env.DB_HOST;
+const client = new MongoClient(uri); 
+
 //ROUTES//
 //home
 //Voor ieder verschillende pagina maak je er een aan. Je kan het zien als een template. Je maakt een soort opmaak en hoeft alleen de content er dan van te veranderen.
@@ -64,4 +72,37 @@ app.use('/static',express.static('static'));
 
 app.listen(port, () => { //Arrow function als hij aan het luisteren is dan console.logt hij wat hieronder staat.
   console.log(`Example app listening on port ${port}`)
+});
+
+
+
+//mongodb proberen
+async function connectDB() {
+  try {
+    await client.connect();
+    console.log("✅ Verbonden met MongoDB");
+  } catch (err) {
+    console.error("❌ Fout bij verbinden met MongoDB:", err);
+  }
+}
+
+
+connectDB(); // Roep de functie aan om te verbinden
+
+// API-endpoint om films uit de database te halen
+app.get("/movies", async (req, res) => {
+  try {
+    const myDB = client.db("myDB");
+    const moviesCollection = myDB.collection("movies");
+
+    const movies = await moviesCollection.find().toArray();
+    res.json(movies);
+  } catch (err) {
+    res.status(500).json({ error: "Fout bij ophalen van films" });
+  }
+});
+
+// Start de server
+app.listen(port, () => {
+  console.log(`🚀 Server draait op http://localhost:${port}`);
 });
