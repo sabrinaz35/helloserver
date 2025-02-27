@@ -43,9 +43,13 @@ app.post('/add',(req, res) => {
 })
 
 app.get('/form', (req, res) => {  
-  res.render('pages/form'); // Zorg dat 'add.ejs' in /views staat
+  res.render('pages/form'); // de form laten zien in de browser
 });
 
+//om de lijst van films te laten zien?
+app.get('/list', (req, res) => {  
+  res.render('pages/list'); 
+});
 
 //About 
 app.get('/about', (req, res) => { 
@@ -72,11 +76,10 @@ app.listen(port, () => { //Arrow function als hij aan het luisteren is dan conso
 
 
 //mongodb proberen
-// const db = client.db(process.env.cluster0)
-// const collection = db.collection(process.env.sample_emflix)
+const db = client.db(process.env.cluster0)
+const collection = db.collection(process.env.sample_emflix)
 
-// async function listAllmovies(req, res) {
-//   data = await collection.find|() .toArray()
-
-//   res.render('list.ejs', {data:data})
-// }
+async function listAllmovies(req, res) {
+  data = await collection.find().toArray()
+  res.render('list.ejs', {data:data})
+}
