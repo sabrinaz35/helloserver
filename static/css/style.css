@@ -1,3 +1,16 @@
-body {
-    background-color: hotpink;
+body { 
+    padding-top:50px; 
+    background-color: lightblue;
+}
+
+nav ul {
+    display: flex;
+    margin: .5rem;
+    background-color: rgb(221, 214, 214);
+    justify-content: center;
+}
+
+nav ul li {
+    list-style: none;
+    margin: 3rem;
 }

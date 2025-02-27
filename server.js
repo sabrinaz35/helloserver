@@ -1,20 +1,19 @@
 //console.log("hello world")
-
 const express = require('express')
 const app = express()
 const port = 8000
 
 //ejs
 app.set('view engine', 'ejs');// sets view engin to ejs
-app.set('vieuws', 'view')
+app.set('views', 'views')
+
+app.use(express.urlencoded({extended: true}))
+app.use(express.static('static'))
+
 
 
 //mongodb
 require("dotenv").config();
-const { MongoClient } = require('mongodb')  
-
-const uri = process.env.DB_HOST;
-const client = new MongoClient(uri); 
 
 //ROUTES//
 //home
@@ -35,8 +34,7 @@ app.get('/', (req, res) => { //Arrow function staat hier meteen al achter, als i
   }); //renderen pagina's van ejs
 })
 
-//inloggen
-app.use(express.urlencoded({extended:true}))
+//form
 
 app.post('/add',(req, res) => { 
   res.send(`thanks for logging in with:
@@ -44,10 +42,9 @@ app.post('/add',(req, res) => {
     e-mail: ${req.body.email}`);
 })
 
-app.get('/', (req, res) => { //show de 
-  res.render('add.ejs');
-})
-
+app.get('/form', (req, res) => {  
+  res.render('pages/form'); // Zorg dat 'add.ejs' in /views staat
+});
 
 
 //About 
@@ -67,8 +64,6 @@ app.use((req, res) => {
   res.status(404).send('<h1>404 not found</h1>');
 })  
 
-//Static
-app.use('/static',express.static('static'));
 
 app.listen(port, () => { //Arrow function als hij aan het luisteren is dan console.logt hij wat hieronder staat.
   console.log(`Example app listening on port ${port}`)
@@ -77,32 +72,11 @@ app.listen(port, () => { //Arrow function als hij aan het luisteren is dan conso
 
 
 //mongodb proberen
-async function connectDB() {
-  try {
-    await client.connect();
-    console.log("✅ Verbonden met MongoDB");
-  } catch (err) {
-    console.error("❌ Fout bij verbinden met MongoDB:", err);
-  }
-}
+// const db = client.db(process.env.cluster0)
+// const collection = db.collection(process.env.sample_emflix)
 
+// async function listAllmovies(req, res) {
+//   data = await collection.find|() .toArray()
 
-connectDB(); // Roep de functie aan om te verbinden
-
-// API-endpoint om films uit de database te halen
-app.get("/movies", async (req, res) => {
-  try {
-    const myDB = client.db("myDB");
-    const moviesCollection = myDB.collection("movies");
-
-    const movies = await moviesCollection.find().toArray();
-    res.json(movies);
-  } catch (err) {
-    res.status(500).json({ error: "Fout bij ophalen van films" });
-  }
-});
-
-// Start de server
-app.listen(port, () => {
-  console.log(`🚀 Server draait op http://localhost:${port}`);
-});
+//   res.render('list.ejs', {data:data})
+// }
