@@ -12,8 +12,16 @@ app.use(express.static('static'))
 
 
 
-//mongodb
-require("dotenv").config();
+//mongodb variabelen
+require("dotenv").config(); //Het inladen van .env mogelijkheden
+const { MongoClient } = require('mongodb')
+
+const db = client.db(process.env.cluster0)
+const collection = db.collection(process.env.sample_emflix)
+const uri = process.env.DB_HOST; //connecten van de string aan de server zonder je ww te tonen etc
+
+const client = new MongoClient(uri);
+
 
 //ROUTES//
 //home
@@ -76,10 +84,18 @@ app.listen(port, () => { //Arrow function als hij aan het luisteren is dan conso
 
 
 //mongodb proberen
-const db = client.db(process.env.cluster0)
-const collection = db.collection(process.env.sample_emflix)
+const query = { title: "A Corner in Wheat" }; //een query met een titel erin waarvan je vermoedelijk de gegevens op wilt halen
 
-async function listAllmovies(req, res) {
-  data = await collection.find().toArray()
+const options = {
+  // Sort matched documents in descending order by rating
+  sort: { "imdb.rating": -1 },
+  // Include only the `title` and `imdb` fields in the returned document
+  projection: { _id: 0, title: 1, imdb: 1 },
+};
+
+async function listOneMovie(req, res) {
+  const movie = await movie.findOne().toArray(); 
   res.render('list.ejs', {data:data})
 }
+
+console.log(movie); 
