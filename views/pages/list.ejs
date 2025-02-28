@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head'); %>
+      </head>
+<body>
+    <header>
+        <%- include('../partials/header'); %>
+      </header>
+      <main>
+        <h1>Film met details</h1>
+        <h2><%= title %></h2> <!-- Toon de titel van de film -->
+        <h3>IMDb Rating: <%= imdbRating %></h3> <!-- Toon de IMDb rating -->
+        <p><%= plot %></p> <!-- Toon de plot van de film -->
+      </main>
+</body>
+</html>

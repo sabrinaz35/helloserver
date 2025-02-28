@@ -12,17 +12,6 @@ app.use(express.static('static'))
 
 
 
-//mongodb variabelen
-require("dotenv").config(); //Het inladen van .env mogelijkheden
-const { MongoClient } = require('mongodb')
-
-const db = client.db(process.env.cluster0)
-const collection = db.collection(process.env.sample_emflix)
-const uri = process.env.DB_HOST; //connecten van de string aan de server zonder je ww te tonen etc
-
-const client = new MongoClient(uri);
-
-
 //ROUTES//
 //home
 //Voor ieder verschillende pagina maak je er een aan. Je kan het zien als een template. Je maakt een soort opmaak en hoeft alleen de content er dan van te veranderen.
@@ -82,20 +71,185 @@ app.listen(port, () => { //Arrow function als hij aan het luisteren is dan conso
 });
 
 
+//Mogo db connect juist check//
 
-//mongodb proberen
-const query = { title: "A Corner in Wheat" }; //een query met een titel erin waarvan je vermoedelijk de gegevens op wilt halen
 
-const options = {
-  // Sort matched documents in descending order by rating
-  sort: { "imdb.rating": -1 },
-  // Include only the `title` and `imdb` fields in the returned document
-  projection: { _id: 0, title: 1, imdb: 1 },
-};
+//mongodb variabelen
+require("dotenv").config(); //Het inladen van .env mogelijkheden
+const { MongoClient } = require('mongodb')
 
-async function listOneMovie(req, res) {
-  const movie = await movie.findOne().toArray(); 
-  res.render('list.ejs', {data:data})
+const uri = process.env.DB_HOST; //connecten van de string aan de server zonder je ww te tonen etc
+
+const client = new MongoClient(uri);
+
+// Connecten + controleren of mongo goed is geconnect
+async function connectDB() {
+  try {
+    await client.connect(); // ✅ Eerst verbinden met de database
+    console.log("✅ Verbonden met MongoDB!");
+
+    const db = client.db(process.env.DB_NAME); // ✅ Haal database naam correct uit .env
+    const collection = db.collection(process.env.COLLECTION); // ✅ Haal collectie naam correct uit .env
+
+    return { db, collection }; // ✅ Geef de database en collectie terug
+  } catch (error) {
+    console.error("❌ Fout bij verbinden met MongoDB:", error);
+  }
 }
 
-console.log(movie); 
+connectDB(); // ✅ Roep de connectie aan
+
+// // mongodb proberen
+// //Variabele om uiteindelijk een film eruit te krijgen  
+
+
+
+
+// //Een funtie om de fillms uit de database te halen een enkele maar ook meerdere
+async function listOneMovie(req, res) {
+  try {
+    const db = client.db("sample_mflix");
+    const collection = db.collection("movies");
+
+    //Door de query aan te passen kan je verschillende gegevens opvragen
+    // const query = { title: "The Room" }; 
+    const query = { runtime: { $lt: 15 }  }; //runtime minder dan 15 minuten
+
+
+    const options = {
+      // Sort matched documents in descending order by rating
+      sort: { "imdb.rating": 1 },
+      // Include only the `title` and `imdb` fields in the returned document
+      projection: { _id: 0, title: 1, imdb: 1 },
+    };
+ 
+
+    // const movie = await collection.find(query, options).toArray(); //Geeft hij een hele lijst weer die voldoen aan de query en de options 
+    const movie = await collection.findOne(query, options); //met deze methode geeft hij er maar eentje weer
+
+    console.log(movie); //Logt de data in de console van de aangegeven film
+
+
+  } catch (error) {
+    console.error("❌ Fout bij ophalen van film:", error);
+  }
+
+}
+
+listOneMovie();
+
+
+
+//Functie om een toe te voegen aan de database 
+async function addNew (req, es) {
+  try {
+    const database = client.db("Oefenen"); //Je maakt een database aan in je mongo die je dan een naam geeft tussen ""
+    const haiku = database.collection("mijnFavoFilms") //In die colletion voeg je een map toe met daarin een collection map met de naam haiku
+
+    const doc = { //Een document aanmaken om toe te voegen aan de database haiku
+      title: "The amazing spiderman",
+      content: "A movie about spiderman, to learn inserting documents"
+    }
+
+    const result = await haiku.insertOne(doc)
+
+    console.log(`A document was inserted with the _id: ${result.insertedId}`);
+  } finally {
+    // Close the MongoDB client connection
+    await client.close();
+ }
+} 
+
+// addNew(); Even als comment anders gaat hij steeds opnieuw een toevoegen als ik refresh haha
+//Om meerdere documenten toe te voegen doe je eigenlijk hetzelfde als de functie addNew, maar dan maak je van de const doc een array en pas je insertOne aan naar insertMany()
+
+    //*******/ Hieronder het voorbeeld van de doc etc./*******/
+    // const docs = [
+    //   { name: "cake", healthy: false },
+    //   { name: "lettuce", healthy: true },
+    //   { name: "donut", healthy: false }
+    // ];
+    // // Prevent additional documents from being inserted if one fails
+    // const options = { ordered: true };
+
+    // const result = await foods.insertMany(docs, options);
+   
+
+//Update a document
+
+async function updateMovie(req, res){
+  try {
+    //Eerst de variabele aanmaken om de database op te zoeken en te definieren
+    const database = client.db("sample_mflix");
+    const movies = database.collection("movies");
+
+    //Een filter creeeren met daarin op wat je het wilt filteren 
+    const filter = { title: "Random Harvest" };
+
+      /* Set the upsert option to insert a document if no documents match
+    the filter */
+    const options = { upsert: true };
+
+    //specify wat je wilt aanpassen in het document
+    const updateDoc = {
+      $set: {
+        plot: `A harvest of random numbers, such as: ${Math.random()}` 
+      },
+    };
+
+    //Hiermee update hij de eerste film die aan de filter voldoet
+    const result = await movies.updateOne(filter, updateDoc, options);
+
+    //console log om te kijken natuurlijk
+    console.log(
+      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
+    );
+  } finally {
+    await client.close();
+  }
+}
+
+updateMovie();
+
+//Ook bij deze kan je meerdere tergelijketrtijd updaten hieronder het voorbeeld hoe dat dan moet
+
+// // Create a filter to update all movies with a 'G' rating
+// const filter = { rated: "G" };
+// // Create an update document specifying the change to make
+// const updateDoc = {
+//   $set: {
+//     random_review: `After viewing I am ${
+//       100 * Math.random()
+//     }% more satisfied with life.`,
+//   },
+// };
+// // Update the documents that match the specified filter
+// const result = await movies.updateMany(filter, updateDoc);
+// console.log(`Updated ${result.modifiedCount} documents`);
+
+
+async function changeIt(req,res){
+  try{
+    const database = client.db("sample_mflix");
+    const movies = database.collection("movies");
+
+    //Huidige document ophalen met een titel met daarin the cat from
+    const query = { title: { $regex: "The Cat from" } };
+
+    //Het document wat het hiervoor genoemde vervangen moet 
+    const replacement = {
+      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,
+    };
+
+    //Het daadwerkelijk uitvoeren van de verandering
+    const result = await movies.replaceOne(query, replacement);
+
+    //het printen van resultaat
+    console.log(`Modified ${result.modifiedCount} document(s)`);
+
+  } finally {
+    await client.close();
+  }
+}
+
+changeIt(); 
