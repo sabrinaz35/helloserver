@@ -6,7 +6,7 @@ body {
 nav ul {
     display: flex;
     margin: .5rem;
-    background-color: rgb(221, 214, 214);
+    background-color: rgb(255, 255, 255);
     justify-content: center;
 }
 
@@ -27,4 +27,5 @@ form input {
 
 form button {
     padding: 1rem;
+    width: 3rem;
 }

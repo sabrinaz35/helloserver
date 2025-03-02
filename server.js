@@ -290,8 +290,10 @@ try {
   const db = client.db("sample_mflix");
   const collection = db.collection("users");
 
+  await client.connect();
+
     // Door de query aan te passen kan je verschillende gegevens opvragen
-      const query = { name: 'name' }; 
+      const query = { name: req.body.name }; 
   
       const options = {
         // Sort matched documents in descending order by rating
@@ -301,12 +303,22 @@ try {
 
   const movie = await collection.findOne(query, options);
 
-} finally {
-  await client.close();
+  if (user) {
+    res.send(`Welkom, ${user.name}! Inloggen was succesvol.`);
+} else {
+    res.status(404).send("Gebruiker niet gevonden. Probeer opnieuw.");
+}
+
+} catch (error) {
+  console.error("Fout bij het controleren van de gebruiker:", error);
+  res.status(500).send("Er is een fout opgetreden.");
+} 
+finally {
+  await client();
 }
 
 })
 
 app.get('/form', (req, res) => {  
-  res.render('pages/form'); // de form laten zien in de browser
+  res.render('form'); // de form laten zien in de browser
 });
