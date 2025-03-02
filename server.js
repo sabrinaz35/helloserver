@@ -72,8 +72,6 @@ app.listen(port, () => { //Arrow function als hij aan het luisteren is dan conso
 
 
 //Mogo db connect juist check//
-
-
 //mongodb variabelen
 require("dotenv").config(); //Het inladen van .env mogelijkheden
 const { MongoClient } = require('mongodb')
@@ -141,24 +139,24 @@ listOneMovie();
 
 
 //Functie om een toe te voegen aan de database 
-async function addNew (req, es) {
-  try {
-    const database = client.db("Oefenen"); //Je maakt een database aan in je mongo die je dan een naam geeft tussen ""
-    const haiku = database.collection("mijnFavoFilms") //In die colletion voeg je een map toe met daarin een collection map met de naam haiku
+// async function addNew (req, es) {
+//   try {
+//     const database = client.db("Oefenen"); //Je maakt een database aan in je mongo die je dan een naam geeft tussen ""
+//     const haiku = database.collection("mijnFavoFilms") //In die colletion voeg je een map toe met daarin een collection map met de naam haiku
 
-    const doc = { //Een document aanmaken om toe te voegen aan de database haiku
-      title: "The amazing spiderman",
-      content: "A movie about spiderman, to learn inserting documents"
-    }
+//     const doc = { //Een document aanmaken om toe te voegen aan de database haiku
+//       title: "The amazing spiderman",
+//       content: "A movie about spiderman, to learn inserting documents"
+//     }
 
-    const result = await haiku.insertOne(doc)
+//     const result = await haiku.insertOne(doc)
 
-    console.log(`A document was inserted with the _id: ${result.insertedId}`);
-  } finally {
-    // Close the MongoDB client connection
-    await client.close();
- }
-} 
+//     console.log(`A document was inserted with the _id: ${result.insertedId}`);
+//   } finally {
+//     // Close the MongoDB client connection
+//     await client.close();
+//  }
+// } 
 
 // addNew(); Even als comment anders gaat hij steeds opnieuw een toevoegen als ik refresh haha
 //Om meerdere documenten toe te voegen doe je eigenlijk hetzelfde als de functie addNew, maar dan maak je van de const doc een array en pas je insertOne aan naar insertMany()
@@ -177,39 +175,39 @@ async function addNew (req, es) {
 
 //Update a document
 
-async function updateMovie(req, res){
-  try {
-    //Eerst de variabele aanmaken om de database op te zoeken en te definieren
-    const database = client.db("sample_mflix");
-    const movies = database.collection("movies");
+// async function updateMovie(req, res){
+//   try {
+//     //Eerst de variabele aanmaken om de database op te zoeken en te definieren
+//     const database = client.db("sample_mflix");
+//     const movies = database.collection("movies");
 
-    //Een filter creeeren met daarin op wat je het wilt filteren 
-    const filter = { title: "Random Harvest" };
+//     //Een filter creeeren met daarin op wat je het wilt filteren 
+//     const filter = { title: "Random Harvest" };
 
-      /* Set the upsert option to insert a document if no documents match
-    the filter */
-    const options = { upsert: true };
+//       /* Set the upsert option to insert a document if no documents match
+//     the filter */
+//     const options = { upsert: true };
 
-    //specify wat je wilt aanpassen in het document
-    const updateDoc = {
-      $set: {
-        plot: `A harvest of random numbers, such as: ${Math.random()}` 
-      },
-    };
+//     //specify wat je wilt aanpassen in het document
+//     const updateDoc = {
+//       $set: {
+//         plot: `A harvest of random numbers, such as: ${Math.random()}` 
+//       },
+//     };
 
-    //Hiermee update hij de eerste film die aan de filter voldoet
-    const result = await movies.updateOne(filter, updateDoc, options);
+//     //Hiermee update hij de eerste film die aan de filter voldoet
+//     const result = await movies.updateOne(filter, updateDoc, options);
 
-    //console log om te kijken natuurlijk
-    console.log(
-      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
-    );
-  } finally {
-    await client.close();
-  }
-}
+//     //console log om te kijken natuurlijk
+//     console.log(
+//       `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
+//     );
+//   } finally {
+//     await client.close();
+//   }
+// }
 
-updateMovie();
+// updateMovie();
 
 //Ook bij deze kan je meerdere tergelijketrtijd updaten hieronder het voorbeeld hoe dat dan moet
 
@@ -227,29 +225,55 @@ updateMovie();
 // const result = await movies.updateMany(filter, updateDoc);
 // console.log(`Updated ${result.modifiedCount} documents`);
 
+//verandering/aanpassing in een document maken
+// async function changeIt(req,res){
+//   try{
+//     const database = client.db("sample_mflix");
+//     const movies = database.collection("movies");
 
-async function changeIt(req,res){
-  try{
+//     //Huidige document ophalen met een titel met daarin the cat from
+//     const query = { title: { $regex: "The Cat from" } };
+
+//     //Het document wat het hiervoor genoemde vervangen moet 
+//     const replacement = {
+//       title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,
+//     };
+
+//     //Het daadwerkelijk uitvoeren van de verandering
+//     const result = await movies.replaceOne(query, replacement);
+
+//     //het printen van resultaat
+//     console.log(`Modified ${result.modifiedCount} document(s)`);
+
+//   } finally {
+//     await client.close();
+//   }
+// }
+
+// changeIt(); 
+//deze code geeft een gekke foutmelding hierboven
+
+
+//Delete van een document 
+
+async function deleteDocument(req, res) {
+  try {
     const database = client.db("sample_mflix");
     const movies = database.collection("movies");
 
-    //Huidige document ophalen met een titel met daarin the cat from
-    const query = { title: { $regex: "The Cat from" } };
+    // Om de eerste document te verwijderen in de collectie movies dat overeenkomt met de queery
+    const query = { title: "Annie Hall" };
+    const result = await movies.deleteOne(query);
 
-    //Het document wat het hiervoor genoemde vervangen moet 
-    const replacement = {
-      title: `The Cat from Sector ${Math.floor(Math.random() * 1000) + 1}`,
-    };
-
-    //Het daadwerkelijk uitvoeren van de verandering
-    const result = await movies.replaceOne(query, replacement);
-
-    //het printen van resultaat
-    console.log(`Modified ${result.modifiedCount} document(s)`);
-
+  // natuurlijk checken of dat lukt met de consol.log
+    if (result.deletedCount === 1) {
+      console.log("Successfully deleted one document.");
+    } else {
+      console.log("No documents matched the query. Deleted 0 documents.");
+    }
   } finally {
     await client.close();
   }
 }
 
-changeIt(); 
+deleteDocument();
