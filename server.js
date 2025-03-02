@@ -33,11 +33,11 @@ app.get('/', (req, res) => { //Arrow function staat hier meteen al achter, als i
 
 //form
 
-app.post('/add',(req, res) => { 
-  res.send(`thanks for logging in with:
-    name: ${req.body.name}
-    e-mail: ${req.body.email}`);
-})
+// app.post('/add',(req, res) => { 
+//   res.send(`thanks for logging in with:
+//     name: ${req.body.name}
+//     e-mail: ${req.body.email}`);
+// })
 
 app.get('/form', (req, res) => {  
   res.render('pages/form'); // de form laten zien in de browser
@@ -101,40 +101,40 @@ connectDB(); // ✅ Roep de connectie aan
 // //Variabele om uiteindelijk een film eruit te krijgen  
 
 
-
+//********** De code is als comment gedaan, omdat niet alles tegelijk kan draaien dan geeft hij foutcode  ************/
 
 // //Een funtie om de fillms uit de database te halen een enkele maar ook meerdere
-async function listOneMovie(req, res) {
-  try {
-    const db = client.db("sample_mflix");
-    const collection = db.collection("movies");
+// async function listOneMovie(req, res) {
+//   try {
+//     const db = client.db("sample_mflix");
+//     const collection = db.collection("movies");
 
-    //Door de query aan te passen kan je verschillende gegevens opvragen
-    // const query = { title: "The Room" }; 
-    const query = { runtime: { $lt: 15 }  }; //runtime minder dan 15 minuten
+//     //Door de query aan te passen kan je verschillende gegevens opvragen
+//     // const query = { title: "The Room" }; 
+//     const query = { runtime: { $lt: 15 }  }; //runtime minder dan 15 minuten
 
 
-    const options = {
-      // Sort matched documents in descending order by rating
-      sort: { "imdb.rating": 1 },
-      // Include only the `title` and `imdb` fields in the returned document
-      projection: { _id: 0, title: 1, imdb: 1 },
-    };
+//     const options = {
+//       // Sort matched documents in descending order by rating
+//       sort: { "imdb.rating": 1 },
+//       // Include only the `title` and `imdb` fields in the returned document
+//       projection: { _id: 0, title: 1, imdb: 1 },
+//     };
  
 
-    // const movie = await collection.find(query, options).toArray(); //Geeft hij een hele lijst weer die voldoen aan de query en de options 
-    const movie = await collection.findOne(query, options); //met deze methode geeft hij er maar eentje weer
+//     // const movie = await collection.find(query, options).toArray(); //Geeft hij een hele lijst weer die voldoen aan de query en de options 
+//     const movie = await collection.findOne(query, options); //met deze methode geeft hij er maar eentje weer
 
-    console.log(movie); //Logt de data in de console van de aangegeven film
+//     console.log(movie); //Logt de data in de console van de aangegeven film
 
 
-  } catch (error) {
-    console.error("❌ Fout bij ophalen van film:", error);
-  }
+//   } catch (error) {
+//     console.error("❌ Fout bij ophalen van film:", error);
+//   }
 
-}
+// }
 
-listOneMovie();
+// listOneMovie();
 
 
 
@@ -256,24 +256,57 @@ listOneMovie();
 
 //Delete van een document 
 
-async function deleteDocument(req, res) {
-  try {
-    const database = client.db("sample_mflix");
-    const movies = database.collection("movies");
+// async function deleteDocument(req, res) {
+//   try {
+//     const database = client.db("sample_mflix");
+//     const movies = database.collection("movies");
 
-    // Om de eerste document te verwijderen in de collectie movies dat overeenkomt met de queery
-    const query = { title: "Annie Hall" };
-    const result = await movies.deleteOne(query);
+//     // Om de eerste document te verwijderen in de collectie movies dat overeenkomt met de queery
+//     const query = { title: "Annie Hall" };
+//     const result = await movies.deleteOne(query);
 
-  // natuurlijk checken of dat lukt met de consol.log
-    if (result.deletedCount === 1) {
-      console.log("Successfully deleted one document.");
-    } else {
-      console.log("No documents matched the query. Deleted 0 documents.");
-    }
-  } finally {
-    await client.close();
-  }
+//   // natuurlijk checken of dat lukt met de consol.log
+//     if (result.deletedCount === 1) {
+//       console.log("Successfully deleted one document.");
+//     } else {
+//       console.log("No documents matched the query. Deleted 0 documents.");
+//     }
+//   } finally {
+//     await client.close();
+//   }
+// }
+
+// deleteDocument();
+
+
+//******************/
+//  mongodb + form  //
+//******************/
+  
+
+app.post('/add',async (req, res) => { 
+
+try {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("users");
+
+    // Door de query aan te passen kan je verschillende gegevens opvragen
+      const query = { name: 'name' }; 
+  
+      const options = {
+        // Sort matched documents in descending order by rating
+        // Include only the `title` and `imdb` fields in the returned document
+        projection: { _id: 0, name: 1, email: 1 },
+      };
+
+  const movie = await collection.findOne(query, options);
+
+} finally {
+  await client.close();
 }
 
-deleteDocument();
+})
+
+app.get('/form', (req, res) => {  
+  res.render('pages/form'); // de form laten zien in de browser
+});
