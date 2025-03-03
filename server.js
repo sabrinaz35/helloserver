@@ -60,10 +60,6 @@ app.get('/profile/:username', (req, res) => {
   res.send('<h1>Hallo</h1>' + username); //Je kan dan je eigen naam achter de / zetten en dan vershcijnt jouw naam in het scherm
 })
 
-//Not found
-app.use((req, res) => { 
-  res.status(404).send('<h1>404 not found</h1>');
-})  
 
 
 app.listen(port, () => { //Arrow function als hij aan het luisteren is dan console.logt hij wat hieronder staat.
@@ -96,6 +92,58 @@ async function connectDB() {
 }
 
 connectDB(); // ✅ Roep de connectie aan
+
+
+//******************/
+//  mongodb + form  //
+//******************/
+  
+
+app.post('/add',async (req, res) => { 
+
+  try {
+    const db = client.db("sample_mflix");
+    const collection = db.collection("users");
+  
+    await client.connect();
+  
+      // Door de query aan te passen kan je verschillende gegevens opvragen
+        const query = { name: req.body.name }; 
+    
+        const options = {
+          // Sort matched documents in descending order by rating
+          // Include only the `title` and `imdb` fields in the returned document
+          projection: { _id: 0, name: 1, email: 1 },
+        };
+  
+    const user = await collection.findOne(query, options);
+  
+    if (user) {
+      res.send(`Welkom, ${user.name}! Inloggen was succesvol.`);
+  } else {
+      res.status(404).send("Gebruiker niet gevonden. Probeer opnieuw.");
+  }
+  
+  } catch (error) {
+    console.error("Fout bij het controleren van de gebruiker:", error);
+    res.status(500).send("Er is een fout opgetreden.");
+  } 
+  finally {
+    await client.close();
+  }
+  
+  })
+  
+  app.get('/form', (req, res) => {  
+    res.render('form'); // de form laten zien in de browser
+  });
+
+
+
+// ERORR HANDLING//
+app.use((req, res) => { 
+  res.status(404).send('<h1>404 not found</h1>');
+})  
 
 // // mongodb proberen
 // //Variabele om uiteindelijk een film eruit te krijgen  
@@ -277,48 +325,3 @@ connectDB(); // ✅ Roep de connectie aan
 // }
 
 // deleteDocument();
-
-
-//******************/
-//  mongodb + form  //
-//******************/
-  
-
-app.post('/add',async (req, res) => { 
-
-try {
-  const db = client.db("sample_mflix");
-  const collection = db.collection("users");
-
-  await client.connect();
-
-    // Door de query aan te passen kan je verschillende gegevens opvragen
-      const query = { name: req.body.name }; 
-  
-      const options = {
-        // Sort matched documents in descending order by rating
-        // Include only the `title` and `imdb` fields in the returned document
-        projection: { _id: 0, name: 1, email: 1 },
-      };
-
-  const movie = await collection.findOne(query, options);
-
-  if (user) {
-    res.send(`Welkom, ${user.name}! Inloggen was succesvol.`);
-} else {
-    res.status(404).send("Gebruiker niet gevonden. Probeer opnieuw.");
-}
-
-} catch (error) {
-  console.error("Fout bij het controleren van de gebruiker:", error);
-  res.status(500).send("Er is een fout opgetreden.");
-} 
-finally {
-  await client();
-}
-
-})
-
-app.get('/form', (req, res) => {  
-  res.render('form'); // de form laten zien in de browser
-});
