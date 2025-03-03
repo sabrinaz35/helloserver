@@ -1,4 +1,5 @@
 //console.log("hello world")
+const { name } = require('ejs');
 const express = require('express')
 const app = express()
 const port = 8000
@@ -10,7 +11,8 @@ app.set('views', 'views')
 app.use(express.urlencoded({extended: true}))
 app.use(express.static('static'))
 
-
+require("dotenv").config(); //Het inladen van .env mogelijkheden
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 
 //ROUTES//
 //home
@@ -69,29 +71,30 @@ app.listen(port, () => { //Arrow function als hij aan het luisteren is dan conso
 
 //Mogo db connect juist check//
 //mongodb variabelen
-require("dotenv").config(); //Het inladen van .env mogelijkheden
-const { MongoClient } = require('mongodb')
+
 
 const uri = process.env.DB_HOST; //connecten van de string aan de server zonder je ww te tonen etc
 
-const client = new MongoClient(uri);
 
 // Connecten + controleren of mongo goed is geconnect
-async function connectDB() {
-  try {
-    await client.connect(); // ✅ Eerst verbinden met de database
-    console.log("✅ Verbonden met MongoDB!");
-
-    const db = client.db(process.env.DB_NAME); // ✅ Haal database naam correct uit .env
-    const collection = db.collection(process.env.COLLECTION); // ✅ Haal collectie naam correct uit .env
-
-    return { db, collection }; // ✅ Geef de database en collectie terug
-  } catch (error) {
-    console.error("❌ Fout bij verbinden met MongoDB:", error);
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
   }
-}
+})
 
-connectDB(); // ✅ Roep de connectie aan
+// Try to open a database connection
+client.connect()
+.then(() => {
+  console.log('Database connection established')
+})
+.catch((err) => {
+  console.log(`Database connection error - ${err}`)
+  console.log(`For uri - ${uri}`)
+})
+
 
 
 //******************/
@@ -99,51 +102,50 @@ connectDB(); // ✅ Roep de connectie aan
 //******************/
   
 
-app.post('/add',async (req, res) => { 
+app.post('/add',async (req, res) => {
 
-  try {
-    const db = client.db("sample_mflix");
-    const collection = db.collection("users");
-  
-    await client.connect();
-  
-      // Door de query aan te passen kan je verschillende gegevens opvragen
-        const query = { name: req.body.name }; 
-    
-        const options = {
-          // Sort matched documents in descending order by rating
-          // Include only the `title` and `imdb` fields in the returned document
-          projection: { _id: 0, name: 1, email: 1 },
-        };
-  
-    const user = await collection.findOne(query, options);
-  
-    if (user) {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("users");
+
+
+  const query = { name: req.body.name }; 
+  const user = await collection.findOne(query);  
+
+if (user) {
+    if(user.password == req.body.password){
       res.send(`Welkom, ${user.name}! Inloggen was succesvol.`);
-  } else {
-      res.status(404).send("Gebruiker niet gevonden. Probeer opnieuw.");
-  }
-  
-  } catch (error) {
-    console.error("Fout bij het controleren van de gebruiker:", error);
-    res.status(500).send("Er is een fout opgetreden.");
-  } 
-  finally {
-    await client.close();
-  }
-  
-  })
+    } else {
+      res.send('Wachtwoord komt niet overeen')
+    }
+} else {
+    res.send("Gebruiker niet gevonden. Probeer opnieuw.");
+}})
   
   app.get('/form', (req, res) => {  
     res.render('form'); // de form laten zien in de browser
-  });
+  })
 
 
 
-// ERORR HANDLING//
-app.use((req, res) => { 
-  res.status(404).send('<h1>404 not found</h1>');
-})  
+//** ERORR HANDLING**//
+// Middleware to handle not found errors - error 404
+app.use((req, res) => {
+  // log error to console
+  console.error('404 error at URL: ' + req.url)
+  // send back a HTTP response with status code 404
+  res.status(404).send('404 error at URL: ' + req.url)
+})
+
+// Middleware to handle server errors - error 500
+app.use((err, req, res) => {
+  // log error to console
+  console.error(err.stack)
+  // send back a HTTP response with status code 500
+  res.status(500).send('500: server error')
+})
+
+
+
 
 // // mongodb proberen
 // //Variabele om uiteindelijk een film eruit te krijgen  
