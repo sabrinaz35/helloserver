@@ -101,30 +101,60 @@ client.connect()
 //  mongodb + form  //
 //******************/
   
+// inloggen en check via mongo
 
+// app.post('/add',async (req, res) => {
+
+//   const db = client.db("sample_mflix");
+//   const collection = db.collection("users");
+
+
+//   const query = { name: req.body.name }; 
+//   const user = await collection.findOne(query);  
+
+// if (user) {
+//     if(user.password == req.body.password){
+//       res.send(`Welkom, ${user.name}! Inloggen was succesvol.`);
+//     } else {
+//       res.send('Wachtwoord komt niet overeen')
+//     }
+// } else {
+//     res.send("Gebruiker niet gevonden. Probeer opnieuw.");
+// }})
+  
+//   app.get('/form', (req, res) => {  
+//     res.render('form'); // de form laten zien in de browser
+//   })
+
+//Account aanmaken plus toevoegen in mongo
 app.post('/add',async (req, res) => {
 
-  const db = client.db("sample_mflix");
-  const collection = db.collection("users");
+//Je maakt een database aan in je mongo die je dan een naam geeft tussen ""
+  const database = client.db("klanten"); 
+  const gebruiker = database.collection("user");
 
+  const doc = { //Een document aanmaken om toe te voegen aan de database haiku
+          name: req.body.name,
+          emailadress: req.body.email,
+          password: req.body.password
+        }
 
-  const query = { name: req.body.name }; 
-  const user = await collection.findOne(query);  
+  const toevoegen = await gebruiker.insertOne(doc)
 
-if (user) {
-    if(user.password == req.body.password){
-      res.send(`Welkom, ${user.name}! Inloggen was succesvol.`);
-    } else {
-      res.send('Wachtwoord komt niet overeen')
-    }
-} else {
-    res.send("Gebruiker niet gevonden. Probeer opnieuw.");
-}})
+  console.log(`A document was inserted with the _id: ${toevoegen.insertedId}`);
+      if (doc){
+
+        res.send(`Welkom, ${gebruiker.name}! Account is succesvol aangemaakt.`)
+      } else {
+        res.send(`Oops er ging iets fout.`)
+      }
+  
+})
+
   
   app.get('/form', (req, res) => {  
     res.render('form'); // de form laten zien in de browser
   })
-
 
 
 //** ERORR HANDLING**//
